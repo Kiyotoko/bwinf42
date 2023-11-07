@@ -1,8 +1,3 @@
-"""
-https://bwinf.de/bundeswettbewerb/42/1/
-"""
-
-
 class Position:
 
     def __init__(self, x: int, y: int, z: int):
@@ -25,10 +20,10 @@ class Position:
 
 class Building:
     def __init__(self, path: str):
+        self.fields = [[], []]
         self.schedule: list[list['Action']] = [[], [], []]
         with open(path, 'r') as reader:
             self.n, self.m = [int(v) for v in reader.readline().split(' ')]
-            self.fields = [[], []]
             for z in range(len(self.fields)):
                 for y in range(self.n):
                     self.fields[z].append([])
@@ -149,30 +144,47 @@ class Action:
             return '!'
 
     def traceback(self) -> str:
-        print(self.target)
         if self.target.is_start():
             return ''
-        return self.origin.traceback() + self.get_action()  # self.origin.get_action() + self.get_action()
+        return self.origin.traceback() + self.get_action()
+
+    def get_runtime(self) -> int:
+        time = 0
+        for char in self.traceback():
+            if char == '!':
+                time += 3
+            else:
+                time += 1
+        return time
 
     def __str__(self):
         return self.traceback()
 
 
-building = Building('zauberschule1.txt')
+building = Building(input("Enter file: "))
 print(building)
+results = []
 
-Action(building.start).conquer(building)
-for _ in range(50):
-    print(building.schedule)
-    temp = building.schedule[0].copy()
-    building.schedule[0].clear()
-    for action in temp:
-        action.target.occupied = action.origin
+
+def eliminate_actions(actions):
+    for action in actions:
+        if action.target.occupied is None:
+            action.target.occupied = action.origin
+            action.conquer(building)
         if action.target.is_end():
-            print(action.traceback())
-            exit(0)
-        action.conquer(building)
+            results.append(f"({action.get_runtime():3.0f}s) {action.traceback()}")
+            return
+
+
+print("\nIteration = ???", end="")
+Action(building.start).conquer(building)
+for j in range(500):
+    print(f"\b\b\b{j:3.0f}", end="")
+    temp = building.schedule[0]
+    building.schedule[0] = []
+    eliminate_actions(temp)
     for k in range(1, len(building.schedule)):
-        building.schedule[k - 1] += building.schedule[k]
-        building.schedule[k].clear()
-exit(1)
+        building.schedule[k - 1].extend(building.schedule[k])
+        building.schedule[k] = []
+results.sort()
+print("\nResult =", results[0])
