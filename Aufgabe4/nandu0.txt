@@ -1,0 +1,5 @@
+3 4
+Q1 Q2 X
+W  W  X
+W  W  X
+L1 L2 X

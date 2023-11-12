@@ -21,7 +21,7 @@ class Position:
 class Building:
     def __init__(self, path: str):
         self.fields = [[], []]
-        self.schedule: list[list['Action']] = [[], [], []]
+        self.schedule: list[list['Action']] = [[], [], [], []]
         with open(path, 'r') as reader:
             self.n, self.m = [int(v) for v in reader.readline().split(' ')]
             for z in range(len(self.fields)):
@@ -124,11 +124,11 @@ class Action:
     def conquer(self, b: Building) -> None:
         t = self.target  # Shortcut
         for f in t.neighbours(b):
-            b.schedule[0].append(Action(f, origin=self))
+            b.schedule[1].append(Action(f, origin=self))
         pos = Position(t.p.x, t.p.y, (1, 0)[t.p.z])
         if b.is_available(pos):
             f = b.get_field(pos)
-            b.schedule[2].append(Action(f, origin=self))
+            b.schedule[3].append(Action(f, origin=self))
 
     def get_action(self) -> str:
         diff = self.target.p - self.origin.target.p
@@ -180,11 +180,8 @@ print("\nIteration = ???", end="")
 Action(building.start).conquer(building)
 for j in range(500):
     print(f"\b\b\b{j:3.0f}", end="")
-    temp = building.schedule[0]
-    building.schedule[0] = []
-    eliminate_actions(temp)
-    for k in range(1, len(building.schedule)):
-        building.schedule[k - 1].extend(building.schedule[k])
-        building.schedule[k] = []
+    eliminate_actions(building.schedule[0])
+    building.schedule.pop(0)
+    building.schedule.append([])
 results.sort()
 print("\nResult =", results[0])
