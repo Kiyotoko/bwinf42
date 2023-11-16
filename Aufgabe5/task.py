@@ -1,22 +1,3 @@
-
-class Tour:
-    def __init__(self, path: str):
-        with open(path, 'r') as reader:
-            self.m = int(reader.readline())
-            self.points = []
-            self.buildings = {}
-            for _ in range(self.m):
-                args = reader.readline()
-                name, year, distance = args[0], int(args[1]), int(args[3])
-                associated = self.buildings.get(name)
-                if associated is None:
-                    associated = TourBuilding(name)
-                    self.buildings[name] = associated
-                associated.years.append(year)
-                
-                self.points.append(TourPoint(name, year, args[2] == 'X', distance))
-
-
 class TourPoint:
     def __init__(self, name: str, year: int, essential: bool, distance: int):
         self.name = name
@@ -24,10 +5,110 @@ class TourPoint:
         self.essential = essential
         self.distance = distance
 
+    def is_local_equ(self, another: 'TourPoint'):
+        return self.name == another.name
 
-class TourBuilding:
-    def __init__(self, name: str):
-        self.name = name
-        self.years = []
-        self.neighbors = {}
-    ...  # FIXME
+    def __str__(self):
+        return f'{self.name},{self.year},{"X" if self.essential else " "},{self.distance}'
+
+    def __repr__(self):
+        return str(self)
+
+
+class Tour:
+    def __init__(self, path: str):
+        with open(path, 'r') as reader:
+            self.m = int(reader.readline())
+            self.points = []
+            self.sequences: list[list[TourPoint]] = [[]]
+            self.distances: dict[str, dict[str, int]] = {}
+            for i in range(self.m):
+                args = reader.readline().split(',')
+                name, year, essential, distance = args[0], int(args[1]), args[2] == 'X', int(args[3])
+                point = TourPoint(name, year, essential, distance)
+                self.sequences[len(self.sequences) - 1].append(point)
+                if name not in self.distances.keys():
+                    self.distances[name] = {}
+                if i > 0:
+                    previous = self.points[i - 1].name
+                    difference = distance - self.points[i - 1].distance
+                    self.distances[name][previous] = difference
+                    self.distances[previous][name] = difference
+                if essential:
+                    self.sequences.append([point])
+                self.points.append(point)
+
+    def __str__(self):
+        build = ''
+        for point in self.points:
+            build += str(point) + '\n'
+        return build
+
+    def optimise(self):
+        self.find_start()
+        for sequence in self.sequences:
+            self.shorter(sequence)
+        self.reset_distances()
+
+    def get_pairs(self) -> list[tuple[TourPoint, TourPoint]]:
+        pairs = []
+        for i in self.sequences[0]:
+            for j in self.sequences[-1]:
+                if i.is_local_equ(j):
+                    pairs.append((i, j))
+        if len(pairs) == 0:
+            raise ValueError("No pairs")
+        return pairs
+
+    def find_start(self) -> None:
+        pairs = self.get_pairs()
+        index: int = ...
+        distance: int = ...
+        for i in range(len(pairs)):
+            diff = pairs[i][1].distance - pairs[i][0].distance
+            if distance is Ellipsis or diff < distance:
+                distance = diff
+                index = i
+        if index is Ellipsis:
+            raise IndexError("Index is Ellipsis")
+        print(pairs[index])
+        for v in self.sequences[0][:self.sequences[0].index(pairs[index][0])]:
+            if v in self.points:
+                self.points.remove(v)
+        for v in self.sequences[-1][self.sequences[-1].index(pairs[index][1])+1:]:
+            if v in self.points:
+                self.points.remove(v)
+
+    def shorter(self, sequence: list[TourPoint]):
+        size = len(sequence)
+        for i in range(0, size, 1):
+            if sequence[i] in self.points:
+                for j in range(i + 1, size, 1):
+                    if sequence[j] in self.points and self.are_connected(sequence[i], sequence[j]):
+                        for e in sequence[i+1:j]:
+                            if e in self.points:
+                                self.points.remove(e)
+
+    def are_connected(self, left: TourPoint, right: TourPoint) -> bool:
+        if left.is_local_equ(right):
+            return True
+        return left.name in self.distances[right.name].keys()
+
+    def get_distance(self, left: TourPoint, right: TourPoint) -> int:
+        if left.is_local_equ(right):
+            return 0
+        try:
+            return self.distances[left.name][right.name]
+        except KeyError:
+            raise ValueError(f"{left} <-> {right} ({self.are_connected(left, right)})")
+
+    def reset_distances(self):
+        self.points[0].distance = 0
+        for i in range(1, len(self.points)):
+            self.points[i].distance = self.points[i-1].distance + self.get_distance(self.points[i-1], self.points[i])
+
+
+tour = Tour(input("Please enter a file: "))
+print(tour.sequences)
+tour.optimise()
+print(tour)

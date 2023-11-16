@@ -1,0 +1,57 @@
+tour1.txt
+Brauerei,1613,X,0
+Karzer,1665,X,80
+Rathaus,1678,X,150
+Rathaus,1739,X,150
+Euler-Brücke,1768, ,330
+Fibonacci-Gaststätte,1820,X,360
+Emmy-Noether-Campus,1912,X,450
+Emmy-Noether-Campus,1998,X,450
+Euler-Brücke,1999, ,580
+Brauerei,2012, ,730
+
+tour2.txt
+Brauerei,1613, ,0
+Karzer,1665,X,80
+Rathaus,1739, ,150
+Euler-Brücke,1768, ,330
+Fibonacci-Gaststätte,1820,X,360
+Emmy-Noether-Campus,1912,X,450
+Emmy-Noether-Campus,1998,X,450
+Euler-Brücke,1999, ,580
+Brauerei,2012, ,730
+
+tour3.txt
+Talstation,1768, ,0
+Wäldle,1841, ,520
+Observatorium,1874,X,770
+Piz Spitz,1898, ,1240
+Panoramasteg,1912,X,1460
+Ziegenbrücke,1979,X,1710
+Talstation,2005, ,1990
+
+tour4.txt
+Marktplatz,1562, ,0
+Springbrunnen,1571, ,80
+Dom,1596,X,150
+Bogenschütze,1683, ,270
+Schnecke,1698,X,420
+Reiterhof,1728,X,560
+Schnecke,1829, ,700
+Große Gabel,1874, ,810
+Fingerhut,1917,X,880
+Stadion,1934, ,1000
+Marktplatz,1962, ,1090
+
+tour5.txt
+Marktplatz,1562, ,0
+Springbrunnen,1571, ,80
+Dom,1596,X,150
+Bogenschütze,1683, ,270
+Schnecke,1698,X,420
+Reiterhof,1728,X,560
+Schnecke,1829, ,700
+Große Gabel,1874, ,810
+Fingerhut,1917,X,880
+Stadion,1934, ,1000
+Marktplatz,1962, ,1090
