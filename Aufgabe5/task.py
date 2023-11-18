@@ -11,9 +11,6 @@ class TourPoint:
     def __str__(self):
         return f'{self.name},{self.year},{"X" if self.essential else " "},{self.distance}'
 
-    def __repr__(self):
-        return str(self)
-
 
 class Tour:
     def __init__(self, path: str):
@@ -57,10 +54,12 @@ class Tour:
                 if i.is_local_equ(j):
                     pairs.append((i, j))
         if len(pairs) == 0:
-            raise ValueError("No pairs")
+            raise ValueError('No pairs')
         return pairs
 
     def find_start(self) -> None:
+        if len(self.sequences[0]) == 1 or len(self.sequences[-1]) == 1:
+            return
         pairs = self.get_pairs()
         index: int = ...
         distance: int = ...
@@ -70,8 +69,7 @@ class Tour:
                 distance = diff
                 index = i
         if index is Ellipsis:
-            raise IndexError("Index is Ellipsis")
-        print(pairs[index])
+            raise IndexError('Index is Ellipsis')
         for v in self.sequences[0][:self.sequences[0].index(pairs[index][0])]:
             if v in self.points:
                 self.points.remove(v)
@@ -100,7 +98,7 @@ class Tour:
         try:
             return self.distances[left.name][right.name]
         except KeyError:
-            raise ValueError(f"{left} <-> {right} ({self.are_connected(left, right)})")
+            raise ValueError(f'Can not connect {left} and {right}')
 
     def reset_distances(self):
         self.points[0].distance = 0
@@ -108,7 +106,6 @@ class Tour:
             self.points[i].distance = self.points[i-1].distance + self.get_distance(self.points[i-1], self.points[i])
 
 
-tour = Tour(input("Please enter a file: "))
-print(tour.sequences)
+tour = Tour(input('Please enter a file: '))
 tour.optimise()
 print(tour)

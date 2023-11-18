@@ -49,10 +49,10 @@ class Environment:
     def get_header(self) -> str:
         build = ""
         for source in self.sources:
-            build += f"{source.type:<5}"
+            build += f'{source.type:<5}'
         build += '|   '
         for result in self.results:
-            build += f"{result.type:<5}"
+            build += f'{result.type:<5}'
         temp = build
         build += '\n'
         for char in temp:
@@ -62,17 +62,17 @@ class Environment:
     def get_state(self) -> str:
         build = ""
         for source in self.sources:
-            build += f"{source.activated:<5}"
+            build += f'{source.activated:<5}'
         build += '|   '
         for result in self.results:
-            build += f"{result.activated:<5}"
+            build += f'{result.activated:<5}'
         return build
 
     def __str__(self) -> str:
         build = ""
         for array in self.fields:
             for field in array:
-                build += f'({field.type}) '
+                build += f'({field.type:<2}) '
             build += '\n'
         return build
 
@@ -114,7 +114,7 @@ class Block:
     def activates(self) -> bool:
         func = Block.activation_map.get(self.type)
         if func is None:
-            raise ValueError(f"Type : {self.type} ? {self.is_source()}")
+            raise ValueError(f'Type : {self.type} ? {self.is_source()}')
         return func(self)
 
     def process_activation(self):
@@ -131,9 +131,6 @@ class Block:
 
     def requires_connection(self) -> bool:
         return self.is_white() or self.is_blue() or self.is_red()
-
-    def get_index(self) -> int:
-        return int(self.type[1])
 
     def is_source(self) -> bool:
         return self.type[0] == 'Q'
@@ -154,13 +151,11 @@ class Block:
         return self.type[0] == 'X'
 
 
-environment = Environment(input("Please enter file: "))
+environment = Environment(input('Please enter file: '))
 print(environment)
 
-permutation = list(itertools.product(range(2), repeat=len(environment.sources)))
-print(permutation)
 print(environment.get_header())
-for i in permutation:
+for i in itertools.product(range(2), repeat=len(environment.sources)):
     environment.deactivate_all()
     for j in range(len(environment.sources)):
         environment.sources[j].activated = i[j] == 1
