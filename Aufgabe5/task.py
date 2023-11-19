@@ -6,6 +6,7 @@ class TourPoint:
         self.distance = distance
 
     def is_local_equ(self, another: 'TourPoint'):
+        # Überprüft, ob zwei Tourpunkte lokal gleich sind (gleicher Ort)
         return self.name == another.name
 
     def __str__(self):
@@ -16,9 +17,9 @@ class Tour:
     def __init__(self, path: str):
         with open(path, 'r') as reader:
             self.m = int(reader.readline())
-            self.points = []
-            self.sequences: list[list[TourPoint]] = [[]]
-            self.distances: dict[str, dict[str, int]] = {}
+            self.points = []  # Liste aller Punkte, die aktuell in der Tour sind
+            self.sequences: list[list[TourPoint]] = [[]]  # Liste aller Sequenzen
+            self.distances: dict[str, dict[str, int]] = {}  # Dictionary für die Distanzen zwischen zwei Ortend
             for i in range(self.m):
                 args = reader.readline().split(',')
                 name, year, essential, distance = args[0], int(args[1]), args[2] == 'X', int(args[3])
@@ -31,7 +32,7 @@ class Tour:
                     difference = distance - self.points[i - 1].distance
                     self.distances[name][previous] = difference
                     self.distances[previous][name] = difference
-                if essential:
+                if essential:  # Erstellt neue Sequenz
                     self.sequences.append([point])
                 self.points.append(point)
 
@@ -42,12 +43,14 @@ class Tour:
         return build
 
     def optimise(self):
+        # Hauptmethode zur Optimierung der Tourlänge
         self.find_start()
         for sequence in self.sequences:
             self.shorter(sequence)
         self.reset_distances()
 
     def get_pairs(self) -> list[tuple[TourPoint, TourPoint]]:
+        # Gibt alle Paare von Tourpunkten zurück, die in der ersten und letzten Sequenz vorkommen
         pairs = []
         for i in self.sequences[0]:
             for j in self.sequences[-1]:
@@ -58,6 +61,7 @@ class Tour:
         return pairs
 
     def find_start(self) -> None:
+        # Findet den optimalen Startpunkt und Endpunkt der Tour
         if len(self.sequences[0]) == 1 or len(self.sequences[-1]) == 1:
             return
         pairs = self.get_pairs()
@@ -78,6 +82,7 @@ class Tour:
                 self.points.remove(v)
 
     def shorter(self, sequence: list[TourPoint]):
+        # Optimiert eine Teilsequenz, indem nicht notwendige Tourpunkte entfernt werden
         size = len(sequence)
         for i in range(0, size, 1):
             if sequence[i] in self.points:
@@ -88,19 +93,22 @@ class Tour:
                                 self.points.remove(e)
 
     def are_connected(self, left: TourPoint, right: TourPoint) -> bool:
+        # Überprüft, ob zwei Tourpunkte direkt miteinander verbunden sind
         if left.is_local_equ(right):
             return True
         return left.name in self.distances[right.name].keys()
 
     def get_distance(self, left: TourPoint, right: TourPoint) -> int:
+        # Gibt die Distanz zwischen zwei Tourpunkten zurück
         if left.is_local_equ(right):
-            return 0
+            return 0  # Annahme, das Abstand zwischen demselben Ort 0 ist
         try:
             return self.distances[left.name][right.name]
         except KeyError:
             raise ValueError(f'Can not connect {left} and {right}')
 
     def reset_distances(self):
+        # Setzt die Distanzen zwischen den Tourpunkten zurück, um die chronologische Reihenfolge zu gewährleisten
         self.points[0].distance = 0
         for i in range(1, len(self.points)):
             self.points[i].distance = self.points[i-1].distance + self.get_distance(self.points[i-1], self.points[i])
