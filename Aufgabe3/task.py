@@ -30,7 +30,7 @@ class Building:
 
     def find_fastest(self) -> str:
         Action(building.start).conquer(building)
-        for j in range(500):
+        while True:
             self.schedule.append([])
             for action in self.schedule.pop(0):
                 if action.target.occupied is None:
